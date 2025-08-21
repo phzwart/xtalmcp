@@ -1,0 +1,166 @@
+# XtalMCP Tool Configuration Template
+# Copy this file and modify it for your own tools
+# 
+# This template shows the basic structure and available configuration options
+# Required fields: module, function, description
+# Optional fields: auto_schema, file_input, input_schema, output_schema, version, author, tags
+
+# Configuration file metadata
+version: "1.0"
+description: "My Crystallography Tools Collection"
+
+# Global settings
+auto_reload: false
+default_format: "json"
+
+# Tool definitions
+tools:
+  # Example: Simple tool with auto-schema detection
+  hello_tool:
+    module: "xtalmcp.tools.hello_tool"
+    function: "HelloTool"
+    description: "A simple hello world tool that returns a greeting"
+    auto_schema: true
+
+# Configuration Notes:
+#
+# 1. REQUIRED FIELDS:
+#    - module: Python module path (e.g., 'my_package.tools')
+#    - function: Function or class name within the module
+#    - description: Human-readable description of the tool
+#
+# 2. AUTO-SCHEMA vs CUSTOM SCHEMA:
+#    - auto_schema: true - Automatically detect schemas from Python type hints
+#    - auto_schema: false - Use custom input_schema and output_schema definitions
+#    - Cannot mix auto_schema=true with custom schemas
+#
+# 3. FILE INPUT:
+#    - file_input: true - Tool can handle file paths and content
+#    - file_input: false - Tool only accepts direct parameters
+#
+# 4. SCHEMA VALIDATION:
+#    - All schemas follow JSON Schema specification
+#    - Use "required" array to specify mandatory parameters
+#    - Use "enum" to restrict values to specific options
+#    - Use "default" to provide default values
+#    - Use "minimum"/"maximum" for numeric constraints
+#
+# 5. METADATA:
+#    - version: Tool version string
+#    - author: Tool author/maintainer
+#    - tags: List of tags for categorization
+#
+# 6. GLOBAL SETTINGS:
+#    - auto_reload: Automatically reload tools when files change
+#    - default_format: Default output format for tools
+#
+# For more information, see the XtalMCP documentation and examples.
+
+# MCP JSON Schema Mapping
+# =======================
+# This section shows how YAML configuration fields map to MCP JSON schema
+#
+# YAML Configuration:
+#   hello_tool:
+#     module: "xtalmcp.tools.hello_tool"
+#     function: "HelloTool"
+#     description: "A simple hello world tool that returns a greeting"
+#     auto_schema: true
+#
+# Maps to MCP JSON Schema:
+#   {
+#     "name": "hello_tool",                    # Tool name from YAML key
+#     "description": "A simple hello world tool that returns a greeting",  # From description field
+#     "inputSchema": {                         # Generated from Python type hints (auto_schema: true)
+#       "type": "object",
+#       "properties": {
+#         "name": {"type": "string", "description": "Name to greet"},
+#         "language": {"type": "string", "description": "Language for greeting"}
+#       }
+#     },
+#     "outputSchema": {                        # Generated from Python return type hints
+#       "type": "object",
+#       "properties": {
+#         "greeting": {"type": "string", "description": "Generated greeting"}
+#       }
+#     }
+#   }
+#
+# Field Mapping Details:
+#   - YAML tool name → MCP "name"
+#   - YAML description → MCP "description"
+#   - YAML auto_schema: true → MCP schemas auto-generated from Python
+#   - YAML auto_schema: false → MCP schemas use custom input_schema/output_schema
+#   - YAML file_input: true → MCP adds file handling capabilities
+#   - YAML metadata (version, author, tags) → MCP tool metadata
+#
+# When auto_schema: false, your custom schemas become the MCP schemas directly:
+#   input_schema: {...} → inputSchema: {...}
+#   output_schema: {...} → outputSchema: {...}
+#
+# Example with Custom Schema:
+#   YAML:
+#     my_tool:
+#       module: "my_package.tools"
+#       function: "MyTool"
+#       description: "Process crystallography data"
+#       auto_schema: false
+#       input_schema:
+#         type: "object"
+#         properties:
+#           data_file: {"type": "string", "description": "Input file path"}
+#           format: {"type": "string", "enum": ["json", "csv"], "default": "json"}
+#         required: ["data_file"]
+#       output_schema:
+#         type: "object"
+#         properties:
+#           result: {"type": "string", "description": "Processing result"}
+#           status: {"type": "string", "enum": ["success", "error"]}
+#         required: ["result", "status"]
+#
+#   MCP JSON Schema:
+#     {
+#       "name": "my_tool",
+#       "description": "Process crystallography data",
+#       "inputSchema": {
+#         "type": "object",
+#         "properties": {
+#           "data_file": {"type": "string", "description": "Input file path"},
+#           "format": {"type": "string", "enum": ["json", "csv"], "default": "json"}
+#         },
+#         "required": ["data_file"]
+#       },
+#       "outputSchema": {
+#         "type": "object",
+#         "properties": {
+#           "result": {"type": "string", "description": "Processing result"},
+#           "status": {"type": "string", "enum": ["success", "error"]}
+#         },
+#         "required": ["result", "status"]
+#       }
+#     }
+#
+# Note: The MCP protocol uses camelCase (inputSchema, outputSchema) while YAML uses snake_case (input_schema, output_schema).
+# XtalMCP automatically converts between these naming conventions.
+#
+# Real Example - HelloTool Schema (auto_schema: true):
+#   {
+#     "name": "hello_tool",
+#     "description": "A simple hello world tool that returns a greeting",
+#     "inputSchema": {
+#       "type": "object",
+#       "properties": {},
+#       "required": []
+#     },
+#     "outputSchema": {
+#       "type": "string",
+#       "description": "Output from HelloTool"
+#     }
+#   }
+#
+# Note: The inputSchema is empty because HelloTool doesn't have type hints for its parameters.
+# To see complete schemas, your Python functions should include type hints like:
+#
+#   def greet(name: str, language: str = "en") -> Dict[str, str]:
+#       """Generate a greeting in the specified language."""
+#       ... 

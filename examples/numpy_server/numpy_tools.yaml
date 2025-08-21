@@ -1,0 +1,87 @@
+version: "1.0"
+description: "Numpy Statistical Functions"
+
+tools:
+  mean:
+    module: "numpy"
+    function: "mean"
+    description: "Compute the arithmetic mean along the specified axis"
+    auto_schema: false
+    input_schema:
+      type: "object"
+      properties:
+        a:
+          type: "array"
+          items:
+            type: "number"
+          description: "Input array of numbers"
+        axis:
+          type: "integer"
+          description: "Axis along which to compute the mean (optional)"
+        keepdims:
+          type: "boolean"
+          default: false
+          description: "Keep the dimensions of the input array"
+      required: ["a"]
+    output_schema:
+      type: "number"
+      description: "Mean value"
+    
+  std:
+    module: "numpy"
+    function: "std"
+    description: "Compute the standard deviation along the specified axis"
+    auto_schema: false
+    input_schema:
+      type: "object"
+      properties:
+        a:
+          type: "array"
+          items:
+            type: "number"
+          description: "Input array of numbers"
+        axis:
+          type: "integer"
+          description: "Axis along which to compute the std (optional)"
+        ddof:
+          type: "integer"
+          default: 0
+          description: "Delta degrees of freedom"
+        keepdims:
+          type: "boolean"
+          default: false
+          description: "Keep the dimensions of the input array"
+      required: ["a"]
+    output_schema:
+      type: "number"
+      description: "Standard deviation value"
+    
+  quantile:
+    module: "numpy"
+    function: "quantile"
+    description: "Compute the q-th quantile of the data along the specified axis"
+    auto_schema: false
+    input_schema:
+      type: "object"
+      properties:
+        a:
+          type: "array"
+          items:
+            type: "number"
+          description: "Input array of numbers"
+        q:
+          type: "number"
+          minimum: 0
+          maximum: 1
+          description: "Quantile to compute (0 <= q <= 1)"
+        axis:
+          type: "integer"
+          description: "Axis along which to compute the quantile (optional)"
+        keepdims:
+          type: "boolean"
+          default: false
+          description: "Keep the dimensions of the input array"
+      required: ["a", "q"]
+    output_schema:
+      type: "number"
+      description: "Quantile value" 

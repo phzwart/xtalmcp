@@ -1,0 +1,91 @@
+# Advanced XtalMCP Tool Configuration Template
+# This template demonstrates all available type definitions and schema options
+# Copy and modify for your crystallography tools
+
+version: "1.0"
+description: "Advanced Crystallography Tools Collection"
+auto_reload: true
+default_format: "json"
+
+tools:
+  # Example: Unit cell analysis tool with comprehensive schema
+  unit_cell_analyzer:
+    module: "my_package.tools.crystallography"
+    function: "UnitCellAnalyzer"
+    description: "Analyze unit cell parameters and detect crystal system"
+    auto_schema: false
+    file_input: true
+    tool_type: "data_processing"
+    version: "2.1.0"
+    author: "Dr. Crystallographer"
+    tags: ["unit-cell", "crystal-system", "analysis"]
+    dependencies: ["numpy", "scipy", "cctbx"]
+    timeout: 600
+    memory_limit: "2GB"
+    
+    input_schema:
+      type: "object"
+      properties:
+        input_file:
+          type: "string"
+          description: "Path to CIF or PDB file"
+          pattern: "^[^<>:\"|?*]+$"
+        crystal_system:
+          type: "string"
+          enum: ["triclinic", "monoclinic", "orthorhombic", "tetragonal", "trigonal", "hexagonal", "cubic"]
+          description: "Expected crystal system (optional)"
+        tolerance:
+          type: "number"
+          minimum: 0.001
+          maximum: 10.0
+          default: 0.1
+          description: "Tolerance for parameter comparison (degrees/Å)"
+        output_format:
+          type: "string"
+          enum: ["json", "csv", "text", "yaml"]
+          default: "json"
+          description: "Output format for results"
+      required: ["input_file"]
+      
+    output_schema:
+      type: "object"
+      properties:
+        unit_cell:
+          type: "object"
+          properties:
+            a: {"type": "number", "description": "Unit cell length a (Å)"}
+            b: {"type": "number", "description": "Unit cell length b (Å)"}
+            c: {"type": "number", "description": "Unit cell length c (Å)"}
+            alpha: {"type": "number", "description": "Unit cell angle α (degrees)"}
+            beta: {"type": "number", "description": "Unit cell angle β (degrees)"}
+            gamma: {"type": "number", "description": "Unit cell angle γ (degrees)"}
+          required: ["a", "b", "c", "alpha", "beta", "gamma"]
+        crystal_system:
+          type: "string"
+          enum: ["triclinic", "monoclinic", "orthorhombic", "tetragonal", "trigonal", "hexagonal", "cubic"]
+          description: "Detected crystal system"
+        status:
+          type: "string"
+          enum: ["success", "warning", "error"]
+          description: "Analysis status"
+      required: ["unit_cell", "crystal_system", "status"]
+
+# Configuration Notes:
+#
+# This template demonstrates:
+# 1. Comprehensive schema definitions with validation rules
+# 2. Crystallography-specific data types and constraints
+# 3. Advanced JSON Schema features (one_of, conditional validation)
+# 4. Tool metadata and configuration options
+# 5. Runtime configuration (timeout, memory limits)
+# 6. Dependency specifications
+#
+# Key features:
+# - Enum values for constrained choices
+# - Numeric ranges with min/max validation
+# - File path validation patterns
+# - Conditional schema requirements
+# - Comprehensive error handling
+# - Performance monitoring
+#
+# For more information, see the XtalMCP documentation and examples. 

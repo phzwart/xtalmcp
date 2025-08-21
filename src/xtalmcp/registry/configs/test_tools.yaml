@@ -1,0 +1,10 @@
+# Test XtalMCP Tools Configuration
+# This file demonstrates auto-schema detection with real functions
+
+tools:
+  # Test auto-schema detection with hello tool
+  hello_tool:
+    module: "xtalmcp.tools.hello_tool"
+    function: "HelloTool"
+    description: "A simple hello world tool that returns a greeting"
+    auto_schema: true 

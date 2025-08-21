@@ -1,0 +1,10 @@
+# Default XtalMCP Tools Configuration
+# This file demonstrates the zero-code tool integration system
+
+tools:
+  # Example: Simple hello world tool
+  hello_tool:
+    module: "xtalmcp.tools.hello_tool"
+    function: "HelloTool"
+    description: "A simple hello world tool that returns a greeting"
+    auto_schema: true 

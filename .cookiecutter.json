@@ -1,0 +1,16 @@
+{
+  "_checkout": "2022.6.3",
+  "_output_dir": "/Users/phzwart/Projects/mcp-ui/xtalmcp",
+  "_repo_dir": "/Users/phzwart/.cookiecutters/cookiecutter-hypermodern-python",
+  "_template": "gh:cjolowicz/cookiecutter-hypermodern-python",
+  "author": "Petrus H Zwart",
+  "copyright_year": "2025",
+  "development_status": "Development Status :: 3 - Alpha",
+  "email": "phzwart@lbl.gov",
+  "friendly_name": "xtalmcp",
+  "github_user": "phzwart",
+  "license": "MIT",
+  "package_name": "xtalmcp",
+  "project_name": "xtalmcp",
+  "version": "1.0.0"
+}
