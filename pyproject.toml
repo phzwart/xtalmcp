@@ -16,11 +16,11 @@ classifiers = [
 Changelog = "https://github.com/phzwart/xtalmcp/releases"
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.10"
 click = ">=8.0.1"
 fastapi = ">=0.68.0"
 uvicorn = ">=0.15.0"
-fastmcp = ">=0.1.0"
+fastmcp = ">=2.0.0"
 pyyaml = ">=6.0"
 pydantic = ">=1.8.0"
 

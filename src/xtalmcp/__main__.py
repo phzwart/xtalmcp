@@ -39,11 +39,36 @@ def cli(ctx: Context, verbose: bool, quiet: bool) -> None:
 
 @cli.command()
 @click.option('--host', default='127.0.0.1', help='Host to bind to')
-@click.option('--port', default=8080, type=int, help='Port to bind to')
-@click.option('--reload', is_flag=True, help='Enable auto-reload for development')
+@click.option('--port', default=8080, help='Port to bind to')
+@click.option('--config', help='Path to YAML configuration file')
+def serve(host: str, port: int, config: Optional[str]):
+    """Start the XtalMCP server with HTTP transport for MCP protocol."""
+    server = create_server()
+    
+    # Register default tools
+    server.register_tool_class(HelloTool)
+    
+    # Load tools from YAML if specified
+    if config:
+        server.load_tools_from_yaml(config)
+    
+    click.echo(f"Starting XtalMCP server with MCP HTTP transport on {host}:{port}")
+    click.echo(f"Registered tools: {', '.join(server.list_tools())}")
+    click.echo("Use MCP clients (like OpenWebUI) to connect and interact with tools")
+    
+    try:
+        server.start(host=host, port=port)
+    except KeyboardInterrupt:
+        click.echo("\nServer stopped by user")
+    except Exception as e:
+        click.echo(f"Error starting server: {e}", err=True)
+        raise click.Abort()
+
+
+@cli.command()
 @click.option('--config', '-c', help='Path to YAML configuration file for tools')
-def serve(host: str, port: int, reload: bool, config: Optional[str]) -> None:
-    """Start the XtalMCP server."""
+def serve_stdio(config: Optional[str]) -> None:
+    """Start the XtalMCP server with MCP stdio transport (for MCP clients like OpenWebUI)."""
     try:
         server = create_server()
         
@@ -60,24 +85,48 @@ def serve(host: str, port: int, reload: bool, config: Optional[str]) -> None:
                 server.register_tool(tool_instance)
                 click.echo(f"Registered YAML tool: {tool_name}")
         
-        click.echo(f"Starting XtalMCP server on {host}:{port}")
+        click.echo("Starting XtalMCP server with MCP stdio transport")
         click.echo(f"Registered tools: {', '.join(server.list_tools())}")
-        click.echo(f"Server URL: http://{host}:{port}")
+        click.echo("Server ready for MCP stdio communication (e.g., OpenWebUI, Claude Desktop)")
         click.echo("Press Ctrl+C to stop the server")
         
-        if reload:
-            click.echo("Auto-reload enabled (development mode)")
-            # Note: uvicorn reload requires running as module, not as script
-            import uvicorn
-            uvicorn.run(
-                "xtalmcp.server:create_server().app",
-                host=host,
-                port=port,
-                reload=True,
-                log_level="info"
-            )
-        else:
-            server.run(host=host, port=port)
+        server.run_stdio()
+            
+    except KeyboardInterrupt:
+        click.echo("\nServer stopped by user")
+    except Exception as e:
+        click.echo(f"Error starting server: {e}", err=True)
+        raise click.Abort()
+
+
+@cli.command()
+@click.option('--host', default='127.0.0.1', help='Host to bind to')
+@click.option('--port', default=8080, type=int, help='Port to bind to')
+@click.option('--config', '-c', help='Path to YAML configuration file for tools')
+def serve_sse(host: str, port: int, config: Optional[str]) -> None:
+    """Start the XtalMCP server with MCP SSE transport."""
+    try:
+        server = create_server()
+        
+        # Register default tools
+        server.register_tool_class(HelloTool)
+        
+        # Load tools from YAML if specified
+        if config:
+            from xtalmcp.registry import YAMLToolRegistry
+            registry = YAMLToolRegistry(config)
+            
+            # Register all tools from the registry
+            for tool_name, tool_instance in registry.tools.items():
+                server.register_tool(tool_instance)
+                click.echo(f"Registered YAML tool: {tool_name}")
+        
+        click.echo(f"Starting XtalMCP server with MCP SSE transport on {host}:{port}")
+        click.echo(f"Registered tools: {', '.join(server.list_tools())}")
+        click.echo(f"SSE endpoint: http://{host}:{port}")
+        click.echo("Press Ctrl+C to stop the server")
+        
+        server.run_sse(host=host, port=port)
             
     except KeyboardInterrupt:
         click.echo("\nServer stopped by user")

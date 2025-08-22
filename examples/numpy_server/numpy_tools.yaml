@@ -24,8 +24,12 @@ tools:
           description: "Keep the dimensions of the input array"
       required: ["a"]
     output_schema:
-      type: "number"
-      description: "Mean value"
+      type: "object"
+      properties:
+        value:
+          type: "number"
+          description: "Mean value"
+      required: ["value"]
     
   std:
     module: "numpy"
@@ -53,8 +57,12 @@ tools:
           description: "Keep the dimensions of the input array"
       required: ["a"]
     output_schema:
-      type: "number"
-      description: "Standard deviation value"
+      type: "object"
+      properties:
+        value:
+          type: "number"
+          description: "Standard deviation value"
+      required: ["value"]
     
   quantile:
     module: "numpy"
@@ -83,5 +91,9 @@ tools:
           description: "Keep the dimensions of the input array"
       required: ["a", "q"]
     output_schema:
-      type: "number"
-      description: "Quantile value" 
+      type: "object"
+      properties:
+        value:
+          type: "number"
+          description: "Quantile value"
+      required: ["value"] 

@@ -102,15 +102,18 @@ class TestXtalMCPServer:
         server = XtalMCPServer()
         tool = TestTool()
         
-        # Mock the FastMCP tool decorator
-        mock_tool_decorator = Mock()
-        server.mcp.tool = mock_tool_decorator
+        # Mock the FastMCP add_tool method
+        mock_add_tool = Mock()
+        server.mcp.add_tool = mock_add_tool
         
         server.register_tool(tool)
         
-        # Verify FastMCP tool was called
-        mock_tool_decorator.assert_called_once()
-        call_args = mock_tool_decorator.call_args
+        # Verify FastMCP add_tool was called
+        mock_add_tool.assert_called_once()
+        call_args = mock_add_tool.call_args
+        
+        # Check that add_tool was called with the right keyword arguments
+        assert call_args[1]['fn'] is not None  # fn should be the wrapper function
         assert call_args[1]['name'] == tool.name
         assert call_args[1]['description'] == tool.description
     
@@ -272,8 +275,11 @@ class TestServerFastMCPIntegration:
         # Register tool
         server.register_tool(tool)
         
-        # Verify FastMCP tool decorator was called
-        mock_fastmcp_instance.tool.assert_called_once()
-        call_args = mock_fastmcp_instance.tool.call_args
+        # Verify FastMCP add_tool was called
+        mock_fastmcp_instance.add_tool.assert_called_once()
+        call_args = mock_fastmcp_instance.add_tool.call_args
+        
+        # Check that add_tool was called with the right keyword arguments
+        assert call_args[1]['fn'] is not None  # fn should be the wrapper function
         assert call_args[1]['name'] == tool.name
         assert call_args[1]['description'] == tool.description 

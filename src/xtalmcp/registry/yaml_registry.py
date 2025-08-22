@@ -15,6 +15,7 @@ import yaml
 
 from xtalmcp.base import BaseTool
 from .schema_detector import SchemaDetector
+from .schema_validator import SchemaValidator
 
 logger = logging.getLogger(__name__)
 
@@ -62,15 +63,29 @@ class DynamicTool(BaseTool):
             Function result wrapped in standard format
         """
         try:
+            # Debug logging
+            logger.info(f"DynamicTool.execute called with kwargs: {kwargs}")
+            logger.info(f"Tool name: {self.name}, Module: {self.config.get('module')}")
+            
             # Handle file input if specified
             if self.file_input:
                 kwargs = self._process_file_input(kwargs)
             
-            # Call the wrapped function
-            if self._is_async_function(self.function):
-                result = await self.function(**kwargs)
-            else:
+            # For numpy functions, we need to handle both positional and keyword arguments
+            # numpy.mean(a, axis=None, keepdims=False) expects 'a' as first positional arg
+            if self.config.get('module') == 'numpy':
+                logger.info(f"Processing numpy function {self.name}")
+                # For numpy functions, use keyword arguments directly since schema now matches function signature
+                logger.info(f"Calling numpy function {self.name} with kwargs: {kwargs}")
                 result = self.function(**kwargs)
+            else:
+                # For non-numpy functions, use keyword arguments
+                if self._is_async_function(self.function):
+                    result = await self.function(**kwargs)
+                else:
+                    result = self.function(**kwargs)
+            
+            logger.info(f"Function execution successful, result: {result}")
             
             # Return in standard format
             return {
@@ -111,11 +126,11 @@ class DynamicTool(BaseTool):
         
         # Add input schema if available
         if self.input_schema:
-            schema['inputSchema'] = self.input_schema
+            schema['input'] = self.input_schema
         
         # Add output schema if available
         if self.output_schema:
-            schema['outputSchema'] = self.output_schema
+            schema['output'] = self.output_schema
         
         return schema
 
@@ -162,6 +177,26 @@ class YAMLToolRegistry:
         with open(path, 'r') as f:
             self.config = yaml.safe_load(f)
         
+        # Validate all tools before creating them
+        logger.info("🔍 Validating tool schemas...")
+        validator = SchemaValidator()
+        validation_results = validator.validate_all_tools(self.config)
+        
+        # Print validation summary
+        validator.print_validation_summary()
+        
+        # Check if any tools have validation errors
+        tools_with_errors = [r for r in validation_results if not r.is_valid]
+        if tools_with_errors:
+            logger.error("💥 Tool validation failed! Fix schema errors before proceeding.")
+            logger.error("Tools with errors:")
+            for result in tools_with_errors:
+                logger.error(f"  - {result.tool_name}")
+                for error in result.errors:
+                    logger.error(f"    {error.field}: {error.message}")
+            raise ValueError(f"Tool validation failed for {len(tools_with_errors)} tools. Check logs for details.")
+        
+        # Create tools if validation passes
         self._create_tools_from_config()
         logger.info(f"Loaded {len(self.tools)} tools from YAML")
     
